@@ -39,12 +39,14 @@ int buttonPluStartState;
 int buttonPlusState;
 int buttonMinusState;
 int buttonRateState;
+int buttonSwitchState;
 
 //BUTTONS
 const int buttonPinStart = 5;  // переключение старт/редактирование
 const int buttonPinPlus = 6;   // Увеличиваем значение
 const int buttonPinMinus = 7;  // Уменьшаем значение
-const int buttonPinRate = 8;   // Уменьшаем значение
+const int buttonPinRate = 8;   // Rate
+const int buttonPinSwitch = 12;   // Rate
 
 void setup() {
   Serial.begin(9600);
@@ -53,6 +55,7 @@ void setup() {
   pinMode(buttonPinStart, INPUT);
   pinMode(buttonPinPlus, INPUT);
   pinMode(buttonPinRate, INPUT);
+  pinMode(buttonPinSwitch, INPUT);
   pinMode(trigerPin, OUTPUT);  
   maxTemperature = EEPROMReadInt(0);
   if(maxTemperature > 65000){
@@ -65,6 +68,7 @@ void loop() {
   buttonPlusState = digitalRead(buttonPinPlus);
   buttonMinusState = digitalRead(buttonPinMinus);
   buttonRateState = digitalRead(buttonPinRate);
+  buttonSwitchState = digitalRead(buttonPinSwitch);
 
   if(startState!=buttonStartState){
     buttonStartState = startState;
@@ -83,7 +87,7 @@ void loop() {
 
 
   if(maxTemperature>temperature){
-    digitalWrite(trigerPin, HIGH);
+    digitalWrite(trigerPin, buttonSwitchState);
   }
   else{
     digitalWrite(trigerPin, LOW);
