@@ -2,6 +2,7 @@
 #include <Adafruit_GFX.h>
 #include <MAX6675.h>
 #include <SPI.h>
+#include <EEPROM.h>
 
 #define cs   10
 #define dc   9
@@ -53,6 +54,10 @@ void setup() {
   pinMode(buttonPinPlus, INPUT);
   pinMode(buttonPinRate, INPUT);
   pinMode(trigerPin, OUTPUT);  
+  maxTemperature = EEPROMReadInt(0);
+  if(maxTemperature > 65000){
+    maxTemperature = 0;
+  }
 }
 
 void loop() {
@@ -91,10 +96,12 @@ void  settingLogic(){
   if(buttonPlusState == HIGH){ 
     maxTemperature = maxTemperature + rate;
     needDrawScreen = true;
+    EEPROMWriteInt(0, maxTemperature);
   }
   else if(buttonMinusState == HIGH){
     maxTemperature = maxTemperature - rate;
     needDrawScreen = true;
+    EEPROMWriteInt(0, maxTemperature);
   }
 
   if(buttonRateState == HIGH){ 
@@ -249,10 +256,24 @@ void drawSettingScreen(){
   tft.print(rate);
 }
 
+//This function will write a 2 byte integer to the eeprom at the specified address and address + 1
+void EEPROMWriteInt(int p_address, int p_value)
+{
+  byte lowByte = ((p_value >> 0) & 0xFF);
+  byte highByte = ((p_value >> 8) & 0xFF);
 
+  EEPROM.write(p_address, lowByte);
+  EEPROM.write(p_address + 1, highByte);
+}
 
+//This function will read a 2 byte integer from the eeprom at the specified address and address + 1
+unsigned int EEPROMReadInt(int p_address)
+{
+  byte lowByte = EEPROM.read(p_address);
+  byte highByte = EEPROM.read(p_address + 1);
 
-
+  return ((lowByte << 0) & 0xFF) + ((highByte << 8) & 0xFF00);
+}
 
 
 
