@@ -5,7 +5,7 @@
 
 #define cs   10
 #define dc   9
-#define rst  8  // you can also connect this to the Arduino reset
+#define rst  3  // you can also connect this to the Arduino reset
 
 int CS = 2;               // CS pin on MAX6675
 int SO = 3;               // SO pin of MAX6675
@@ -37,11 +37,13 @@ int buttonStartState;
 int buttonPluStartState;
 int buttonPlusState;
 int buttonMinusState;
+int buttonRateState;
 
 //BUTTONS
 const int buttonPinStart = 5;  // переключение старт/редактирование
 const int buttonPinPlus = 6;   // Увеличиваем значение
 const int buttonPinMinus = 7;  // Уменьшаем значение
+const int buttonPinRate = 8;   // Уменьшаем значение
 
 void setup() {
   Serial.begin(9600);
@@ -49,6 +51,7 @@ void setup() {
 
   pinMode(buttonPinStart, INPUT);
   pinMode(buttonPinPlus, INPUT);
+  pinMode(buttonPinRate, INPUT);
   pinMode(trigerPin, OUTPUT);  
 }
 
@@ -56,6 +59,7 @@ void loop() {
   int startState = digitalRead(buttonPinStart);
   buttonPlusState = digitalRead(buttonPinPlus);
   buttonMinusState = digitalRead(buttonPinMinus);
+  buttonRateState = digitalRead(buttonPinRate);
 
   if(startState!=buttonStartState){
     buttonStartState = startState;
@@ -71,10 +75,13 @@ void loop() {
     settingLogic();
   }
 
+
+
   if(maxTemperature>temperature){
     digitalWrite(trigerPin, HIGH);
-  }else{
-  digitalWrite(trigerPin, LOW);
+  }
+  else{
+    digitalWrite(trigerPin, LOW);
   }
 
   reloadScreen();
@@ -87,6 +94,19 @@ void  settingLogic(){
   }
   else if(buttonMinusState == HIGH){
     maxTemperature = maxTemperature - rate;
+    needDrawScreen = true;
+  }
+
+  if(buttonRateState == HIGH){ 
+    if(rate==1){
+      rate=10;
+    }
+    else if(rate == 10){
+      rate = 100;
+    }
+    else if(rate = 100){
+      rate =1;
+    }
     needDrawScreen = true;
   }
 }
@@ -228,6 +248,9 @@ void drawSettingScreen(){
   tft.setTextColor(backGroundColor);
   tft.print(rate);
 }
+
+
+
 
 
 
